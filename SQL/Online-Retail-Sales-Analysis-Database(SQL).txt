@@ -1,0 +1,227 @@
+-- create database retail_db;
+
+create table customers(
+	customer_id serial primary key,
+	customer_name varchar(30) not null,
+	city varchar(20) not null
+)
+
+create table products(
+	product_id serial primary key,
+	product_name varchar(20) not null,
+	product_category varchar(20) not null,
+	product_price decimal(7,2) not null
+)
+
+create table orders(
+	order_id serial primary key,
+	order_date DATE,
+	customer_id int not null,
+	FOREIGN KEY (customer_id) references customers(customer_id)
+)
+
+create table order_items(
+	order_item_id int primary key,
+	order_id int,
+	product_id int not null,
+	quantity int not null,
+	FOREIGN KEY (order_id) references orders(order_id),
+	FOREIGN KEY (product_id) references products(product_id)
+)
+
+INSERT INTO customers (customer_name, city) VALUES
+('Rahul Sharma', 'Delhi'),
+('Sneha Reddy', 'Hyderabad'),
+('Arjun Verma', 'Mumbai'),
+('Priya Singh', 'Bangalore'),
+('Kiran Kumar', 'Chennai'),
+('Anjali Mehta', 'Pune'),
+('Rohit Gupta', 'Kolkata'),
+('Neha Kapoor', 'Jaipur'),
+('Vikram Patel', 'Ahmedabad'),
+('Sana Khan', 'Lucknow');
+
+
+INSERT INTO products (product_name, product_category, product_price) VALUES
+('Laptop Pro', 'Electronics', 70000),
+('Laptop Air', 'Electronics', 55000),
+('Gaming Laptop', 'Electronics', 90000),
+('Tablet', 'Electronics', 20000),
+('Smartwatch', 'Electronics', 8000),
+
+('Formal Shirt', 'Fashion', 1200),
+('Casual Shirt', 'Fashion', 900),
+('Jacket', 'Fashion', 2500),
+('Sweater', 'Fashion', 1800),
+('Kurta', 'Fashion', 1000),
+
+('Running Shoes', 'Footwear', 3000),
+('Formal Shoes', 'Footwear', 3500),
+('Slippers', 'Footwear', 500),
+('Sandals', 'Footwear', 800),
+('Sports Shoes', 'Footwear', 4000),
+
+('Microwave', 'Home Appliances', 12000),
+('Air Conditioner', 'Home Appliances', 35000),
+('Fan', 'Home Appliances', 2500),
+('Heater', 'Home Appliances', 3000),
+('Mixer Grinder', 'Home Appliances', 5000),
+
+('Notebook', 'Education', 100),
+('Pen Pack', 'Education', 200),
+('School Bag', 'Education', 1500),
+('Calculator', 'Education', 800),
+('Dictionary', 'Education', 600),
+
+('Sunglasses', 'Accessories', 1500),
+('Wallet', 'Accessories', 1200),
+('Watch', 'Accessories', 5000),
+('Belt', 'Accessories', 700),
+('Cap', 'Accessories', 400);
+
+INSERT INTO orders (order_date, customer_id) VALUES
+('2025-01-05', 1),
+('2025-01-08', 2),
+('2025-01-10', 3),
+('2025-01-12', 1),
+('2025-01-15', 4),
+('2025-01-18', 5),
+('2025-01-20', 2),
+('2025-01-25', 6),
+
+('2025-02-02', 3),
+('2025-02-05', 7),
+('2025-02-08', 8),
+('2025-02-10', 1),
+('2025-02-14', 9),
+('2025-02-18', 10),
+('2025-02-20', 4),
+('2025-02-25', 5),
+
+('2025-03-01', 2),
+('2025-03-03', 3),
+('2025-03-06', 6),
+('2025-03-10', 7),
+('2025-03-12', 8),
+('2025-03-15', 9),
+('2025-03-18', 1),
+('2025-03-22', 2),
+('2025-03-25', 4),
+('2025-03-28', 5);
+
+INSERT INTO order_items (order_item_id, order_id, product_id, quantity) VALUES
+(1, 1, 1, 1),
+(2, 1, 3, 2),
+(3, 1, 5, 1),
+
+(4, 2, 2, 1),
+(5, 2, 4, 2),
+
+(6, 3, 6, 1),
+(7, 3, 7, 3),
+
+(8, 4, 2, 1),
+(9, 4, 8, 2),
+
+(10, 5, 9, 1),
+(11, 5, 10, 2),
+
+(12, 6, 3, 1),
+(13, 6, 1, 2),
+
+(14, 7, 5, 1),
+(15, 7, 6, 2),
+
+(16, 8, 4, 1),
+(17, 8, 7, 1),
+
+(18, 9, 8, 2),
+(19, 9, 2, 1),
+
+(20, 10, 1, 1),
+(21, 10, 9, 1),
+
+(22, 11, 10, 2),
+(23, 11, 3, 1),
+
+(24, 12, 4, 2),
+(25, 12, 5, 1),
+
+(26, 13, 6, 1),
+(27, 13, 8, 2),
+
+(28, 14, 7, 1),
+(29, 14, 2, 2),
+
+(30, 15, 1, 1),
+(31, 15, 3, 1);
+
+-- Q1.Find top-selling products
+
+select oi.product_id,product_name,count(*) as top_selling 
+from order_items oi
+inner join products p
+on p.product_id = oi.product_id
+group by oi.product_id,product_name
+having count(*) =
+	(select max(top_selling) from (select count(*) as top_selling from order_items group by product_id ))
+	
+-- Q2. Identify most valuable customers
+
+select o.customer_id,customer_name,count(*) as freq
+from orders o 
+inner join customers c 
+on o.customer_id = c.customer_id
+group by o.customer_id,customer_name
+order by freq desc
+limit 5
+
+-- Q3. Monthly revenue calculation
+
+-- select extract(month from order_date) as month,sum(product_price*quantity)
+-- from order_items oi
+-- inner join orders o 
+-- on oi.order_id = o.order_id
+-- inner join products p
+-- on oi.product_id = p.product_id
+-- group by extract(month from order_date)
+
+select 
+case
+    when extract(month from order_date) = 1 then 'January'
+    when extract(month from order_date) = 2 then 'February'
+    when extract(month from order_date) = 3 then 'March'
+    when extract(month from order_date) = 4 then 'April'
+    when extract(month from order_date) = 5 then 'May'
+    when extract(month from order_date) = 6 then 'June'
+    when extract(month from order_date) = 7 then 'July'
+    when extract(month from order_date) = 8 then 'August'
+    when extract(month from order_date) = 9 then 'September'
+    when extract(month from order_date) = 10 then 'October'
+    when extract(month from order_date) = 11 then 'November'
+    when extract(month from order_date) = 12 then 'December'
+end as month
+,sum(product_price*quantity) as month_revenue
+from order_items oi
+inner join orders o 
+on oi.order_id = o.order_id
+inner join products p
+on oi.product_id = p.product_id
+group by extract(month from order_date)
+
+-- Q4. Category-wise sales analysis
+
+select product_category,sum(product_price)
+from products p
+full join order_items oi
+on oi.product_id = p.product_id
+group by product_category
+
+-- Q5. Detect inactive customers
+select c.customer_id,customer_name, count(*) as order_count
+from customers c
+join orders o 
+on o.customer_id = c.customer_id
+group by c.customer_id,customer_name
+order by count(*)
+limit 3
