@@ -1,3 +1,14 @@
+/*
+Problem Statement
+Build a Password Strength Checker that validates a string against corporate security policies
+and provides specific feedback on why a password failed.
+
+Student Tasks:
+1. The Policy: The password must be:
+        ==> At least 8 characters long.
+        ==> Contain at least one Uppercase letter.
+        ==> Contain at least one Digit (0-9).
+*/
 
 import java.util.HashMap;
 import java.util.Scanner;

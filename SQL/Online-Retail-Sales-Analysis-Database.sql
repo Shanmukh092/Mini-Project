@@ -22,7 +22,7 @@ analyze sales performance.
 	==> Detect inactive customers
 */
 
--- create database retail_db;
+create database retail_db;
 
 create table customers(
 	customer_id serial primary key,
